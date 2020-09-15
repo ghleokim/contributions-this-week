@@ -10,7 +10,8 @@
     "content_scripts": [
         {
             "matches": ["https://lab.ssafy.com/*"],
-            "js": ["content.js"]
+            "js": ["content.js"],
+            "css": ["ctw.css"]
         }
     ],
     "manifest_version": 2

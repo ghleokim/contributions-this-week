@@ -87,7 +87,6 @@ function getWeek(element) {
  *      {count:14, day: 5, date: [Date object]}
  */
 function parseTitle(element) {
-  console.log(element)
   data = element.outerHTML.toString()
   data = data.split('"')
   if (data.length < 17) return;
@@ -123,20 +122,23 @@ async function run() {
 }
 
 jsOverview = document.getElementById('js-overview');
-jsOverview = jsOverview.children[0].children[0].children[0].children[0];
 
-// Select the node that will be observed for mutations
-const targetNode = jsOverview
+if (!!jsOverview) {
+  jsOverview = jsOverview.children[0].children[0].children[0].children[0];
 
-// Options for the observer (which mutations to observe)
-const config = {
-  attributes: true,
-  childList: true,
-  subtree: true
-};
+  // Select the node that will be observed for mutations
+  const targetNode = jsOverview
 
-// Create an observer instance linked to the callback function
-const observer = new MutationObserver(() => run().then(() => observer.disconnect()));
+  // Options for the observer (which mutations to observe)
+  const config = {
+    attributes: true,
+    childList: true,
+    subtree: true
+  };
 
-// Start observing the target node for configured mutations
-observer.observe(targetNode, config);
+  // Create an observer instance linked to the callback function
+  const observer = new MutationObserver(() => run().then(() => observer.disconnect()));
+
+  // Start observing the target node for configured mutations
+  observer.observe(targetNode, config);
+}

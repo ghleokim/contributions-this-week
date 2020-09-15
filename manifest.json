@@ -1,0 +1,17 @@
+{
+    "name": "Contribution This Week",
+    "version": "1.0",
+    "description": "Count user's contributions this week!",
+    "permissions": [
+        "tabs",
+        "declarativeContent",
+        "activeTab"
+    ],
+    "content_scripts": [
+        {
+            "matches": ["https://lab.ssafy.com/*"],
+            "js": ["content.js"]
+        }
+    ],
+    "manifest_version": 2
+}

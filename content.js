@@ -53,15 +53,8 @@ function getHeader() {
 }
 
 function getWeek(element) {
-  weekBoxStyle = `display: flex;`
-
-  grayColor = `rgb(237,237,237)`
-  blueColor = `rgb(172,213,242)`
-
-
-
   weekBox = document.createElement('div');
-  weekBox.style.cssText = weekBoxStyle;
+  weekBox.className = "ctw-weekContainer";
 
   for (i = 0; i < 7; i++) {
     dayBox = document.createElement('div');

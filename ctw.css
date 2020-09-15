@@ -16,7 +16,7 @@ div .ctw-subheading {
   font-size: 12px;
 }
 
-div .ctw-headerContainer {
+div .ctw-headerContainer, .ctw-weekContainer {
   display: flex;
 }
 

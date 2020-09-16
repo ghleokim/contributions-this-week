@@ -4,15 +4,12 @@
     "description": "Count user's contributions this week!",
     "permissions": [
         "tabs",
-        "declarativeContent",
-        "activeTab"
+        "activeTab",
+        "https://lab.ssafy.com/*"
     ],
-    "content_scripts": [
-        {
-            "matches": ["https://lab.ssafy.com/*", "https://gitlab.com/*"],
-            "js": ["content.js"],
-            "css": ["ctw.css"]
-        }
-    ],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
     "manifest_version": 2
 }

@@ -1,3 +1,8 @@
+let calendarObj = {};
+getCalendar();
+
+let timeZoneOffset = new Date().getTimezoneOffset() * 60000;
+
 /** Creates a div element with selected week's contributions. */
 function getWeekElement(element) {
   heading = getHeading()
@@ -24,6 +29,7 @@ function getWeekElement(element) {
 function getHeading() {
   heading = document.createElement('div');
   heading.className = "ctw-heading"
+  heading.id = "ctw-heading"
   heading.innerText = "contributions this week"
   return heading
 }
@@ -32,12 +38,32 @@ function getHeading() {
  *  for example : "2020-09-14 ~ 2020-09-20"
  */
 function getDateHeading(element) {
+  dHeadingContainer = document.createElement('div');
+  dHeadingContainer.className = "ctw-subheadingContainer";
+
+
+  arrowFormer = document.createElement('div');
+  arrowFormer.className = "ctw-subheading-former";
+  arrowFormer.innerText = "◂";
+
+  arrowNext = document.createElement('div');
+  arrowNext.className = "ctw-subheading-next";
+  arrowNext.innerText = "▸";
+
+  arrowFormer.addEventListener("click", goBefore);
+  arrowNext.addEventListener("click", goNext);
+
   dHeading = document.createElement('div');
   dHeading.className = "ctw-subheading"
   start = element.__data__[0].date.toISOString().substring(0, 10);
   end = element.__data__[element.__data__.length - 1].date.toISOString().substring(0, 10);
   dHeading.innerText = `${start} ~ ${end}`
-  return dHeading
+
+  dHeadingContainer.appendChild(arrowFormer)
+  dHeadingContainer.appendChild(dHeading)
+  dHeadingContainer.appendChild(arrowNext)
+
+  return dHeadingContainer
 }
 
 /** Creates a table header div for the ctw table. */
@@ -119,6 +145,119 @@ async function run() {
   })
 
   getWeekElement(target[target.length - 4]);
+  
+  chrome.storage.sync.get(['labWeekOffset'], async function (result) {
+    await getCalendar()
+    updateWeek(result.labWeekOffset)
+    document.getElementById('ctw-container').className = "ctw-container"
+  })
+}
+
+/** A main function that gets calendar.json from current url's username */
+async function getCalendar() {
+  const usernameFromUrl = document.URL.split('/')[3]
+  let currentResult = await fetch(`https://lab.ssafy.com/users/${usernameFromUrl}/calendar.json`)
+    .then(res => res.json())
+
+  calendarObj = currentResult
+  return currentResult
+}
+
+/** A date function that returns the start day of this week */
+function getThisWeekStart() {
+  const weekStart = new Date()
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+  weekStart.setHours(0, 0, 0, 0)
+  return weekStart
+}
+
+/** A function that returns empty data array */
+function getWeekTemplate(offset) {
+  const weekStart = getThisWeekStart()
+  const obj = []
+  weekStart.setDate(weekStart.getDate() + offset * 7)
+
+  for (let i = 0; i < 7; i++) {
+    const curDay = new Date(weekStart)
+    curDay.setDate(curDay.getDate() + i)
+    countVal = 0
+    if (curDay > new Date()) {
+      countVal = '-'
+    }
+    curObj = {
+      count: countVal,
+      day: i,
+      date: curDay
+    }
+    obj.push(curObj)
+  }
+  return obj
+}
+
+function goBefore() {
+  chrome.storage.sync.get(['labWeekOffset'], function (result) {
+    const current = result.labWeekOffset ? result.labWeekOffset : 0
+    const target = current - 1
+
+    updateWeek(target)
+    updateStorage(target)
+  })
+}
+
+function goNext() {
+  chrome.storage.sync.get(['labWeekOffset'], function (result) {
+    const current = result.labWeekOffset ? result.labWeekOffset : 0
+    const target = current + 1
+
+    updateWeek(target)
+    updateStorage(target)
+  })
+}
+
+function updateStorage(offset) {
+  chrome.runtime.sendMessage({ setOffset: { value: offset } })
+}
+
+function updateWeek(offset) {
+  const template = getWeekTemplate(offset)
+  setWeekHeading(template)
+  setWeekData(template, calendarObj)
+}
+
+/** Change week heading */
+function setWeekHeading(template) {
+  let start = new Date(template[0].date - timeZoneOffset)
+  start = start.toISOString().split('T')[0]
+
+  let end = new Date(template[6].date - timeZoneOffset)
+  end = end.toISOString().split('T')[0]
+
+  const dHeading = document.getElementsByClassName('ctw-subheading')[0]
+  dHeading.innerText = `${start} ~ ${end}`
+}
+
+/** Puts count data in template and returns */
+function setWeekData(template, calendar) {
+  const weekData = template.map((value) => {
+    const stringValue = new Date(value.date - timeZoneOffset)
+    const ds = stringValue.toISOString().split('T')[0]
+    const data = calendar[ds] ? calendar[ds] : 0
+    if (value.count !== '-') {
+      value.count = data
+    }
+    return value
+  })
+
+  const weekContainer = document.getElementsByClassName('ctw-weekContainer')[0].children
+  weekData.forEach((value, index) => {
+    if (value.count !== '-') {
+      const dataColored = value.count ? "blue" : "gray"
+      weekContainer[index].setAttribute("data-colored", dataColored)
+    } else {
+      weekContainer[index].setAttribute("data-colored", "")
+    }
+    weekContainer[index].innerText = value.count
+  })
 }
 
 jsOverview = document.getElementById('js-overview');
@@ -141,4 +280,38 @@ if (!!jsOverview) {
 
   // Start observing the target node for configured mutations
   observer.observe(targetNode, config);
+}
+
+/** Sets empty template for calendar. */
+function addEmptyTemplate() {
+  const i = document.createElement('div')
+  i.innerHTML = `
+  <div id="ctw-container" class="ctw-container d-none">
+    <div class="ctw-heading">contributions this week</div>
+    <div class="ctw-subheadingContainer">
+      <div id="ctw-btn-former" class="ctw-subheading-former">◂</div>
+      <div class="ctw-subheading"></div>
+      <div id="ctw-btn-next" class="ctw-subheading-next">▸</div>
+    </div>
+    <div class="ctw-headerContainer">
+      <div class="ctw-header">Sun</div>
+      <div class="ctw-header">Mon</div>
+      <div class="ctw-header">Tue</div>
+      <div class="ctw-header">Wed</div>
+      <div class="ctw-header">Thu</div>
+      <div class="ctw-header">Fri</div>
+      <div class="ctw-header">Sat</div>
+    </div>
+    <div class="ctw-weekContainer">
+      <div class="ctw-box">-</div>
+      <div class="ctw-box">-</div>
+      <div class="ctw-box">-</div>
+      <div class="ctw-box">-</div>
+      <div class="ctw-box">-</div>
+      <div class="ctw-box">-</div>
+      <div class="ctw-box">-</div>
+    </div>
+  </div>
+  `
+  document.body.appendChild(i)
 }

@@ -49,10 +49,25 @@ div .ctw-box {
   color: rgb(30, 30, 30);
 }
 
-div .ctw-box-gray {
+div .ctw-box[data-colored="gray"] {
   background-color: rgb(237, 237, 237);
 }
 
-div .ctw-box-blue {
+div .ctw-box[data-colored="blue"] {
   background-color: rgb(172, 213, 242);
+}
+
+div .ctw-subheadingContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+div .ctw-subheading-former, .ctw-subheading-next {
+  line-height: 25px;
+  text-align: center;
+  -webkit-user-select: none; /* Safari */        
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none; /* Standard */
 }

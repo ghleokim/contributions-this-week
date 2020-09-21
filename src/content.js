@@ -14,6 +14,7 @@ function getWeekElement(element) {
 
   container = document.createElement('div');
   container.className = "ctw-container";
+  container.id = "ctw-container";
 
   container.appendChild(heading)
   container.appendChild(dateHeading);

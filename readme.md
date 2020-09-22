@@ -2,11 +2,25 @@
 
 gitlab상에서 사용자의 이번 주 컨트리뷰션 내역을 한 눈에 확인할 수 있습니다 !
 
-<img src="./images/demo.gif" alt="demo">
+<img src="./images/demo-v2.gif" alt="demo">
 
 ---
 
-## installation
+## Version History
+
+`v2.0.0`
+
+- 사용자 정보의 `calendar.json` 내용을 `fetch API`를 통해 불러오도록 추가하였습니다.
+
+- ***.gitlab.com** 의 형식으로 된 gitlab에서도 동일하게 동작합니다.
+
+`v1.0.0` 
+
+- 사용자 페이지에 로드된 calendar를 바탕으로 현재의 contribution 내역을 나타냅니다.
+
+
+
+## Installation
 
 1. 이 리포지토리를 클론합니다.
 	```bash
@@ -41,4 +55,4 @@ gitlab상에서 사용자의 이번 주 컨트리뷰션 내역을 한 눈에 확
 
 7. 끝!
 	
-	<img src="./images/result.jpg" alt="result" width="300">
+	<img src="./images/result-v2.jpg" alt="result" width="300">

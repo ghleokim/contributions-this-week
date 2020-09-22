@@ -42,13 +42,14 @@ function getDateHeading(element) {
   dHeadingContainer = document.createElement('div');
   dHeadingContainer.className = "ctw-subheadingContainer";
 
-
   arrowFormer = document.createElement('div');
   arrowFormer.className = "ctw-subheading-former";
+  arrowFormer.id = "ctw-arrow-former";
   arrowFormer.innerText = "◂";
 
   arrowNext = document.createElement('div');
   arrowNext.className = "ctw-subheading-next";
+  arrowNext.id = "ctw-arrow-next";
   arrowNext.innerText = "▸";
 
   arrowFormer.addEventListener("click", goBefore);
@@ -157,7 +158,7 @@ async function run() {
 /** A main function that gets calendar.json from current url's username */
 async function getCalendar() {
   const usernameFromUrl = document.URL.split('/')[3]
-  let currentResult = await fetch(`https://lab.ssafy.com/users/${usernameFromUrl}/calendar.json`)
+  let currentResult = await fetch(`/users/${usernameFromUrl}/calendar.json`)
     .then(res => res.json())
 
   calendarObj = currentResult
@@ -207,8 +208,8 @@ function goBefore() {
 
 function goNext() {
   chrome.storage.sync.get(['labWeekOffset'], function (result) {
-    const current = result.labWeekOffset ? result.labWeekOffset : 0
-    const target = current + 1
+    const current = result.labWeekOffset ? result.labWeekOffset : 0;
+    const target = Math.min(current + 1, 0);
 
     updateWeek(target)
     updateStorage(target)
@@ -221,8 +222,26 @@ function updateStorage(offset) {
 
 function updateWeek(offset) {
   const template = getWeekTemplate(offset)
+  setHeading(offset)
   setWeekHeading(template)
   setWeekData(template, calendarObj)
+}
+
+function setHeading(offset) {
+  let headingText = ""
+  let arrowNextVisible = true
+  if (offset === 0) {
+    headingText = "contributions this week";
+    arrowNextVisible = false
+  } else if (offset === -1) {
+    headingText = "contributions last week";
+  } else {
+    headingText = `contributions ${offset} week`;
+  }
+  heading = document.getElementById("ctw-heading");
+  heading.innerText = headingText;
+  arrowNext = document.getElementById("ctw-arrow-next");
+  arrowNext.style.visibility = arrowNextVisible ? "visible":"hidden";
 }
 
 /** Change week heading */

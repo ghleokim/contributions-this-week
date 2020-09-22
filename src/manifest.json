@@ -17,7 +17,9 @@
     "content_scripts": [
         {
             "matches": [
-                "https://lab.ssafy.com/*"
+                "https://lab.ssafy.com/*",
+                "https://gitlab.com/*",
+                "https://*.gitlab.com/*"
             ],
             "css": [
                 "ctw.css"
